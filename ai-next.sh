@@ -23,6 +23,7 @@ while [[ $# -gt 0 ]]; do
     -model) MODEL_NAME="$2"; shift 2 ;;
     -with-logs) WITH_LOGS=1; shift 1 ;;
     -research) PHASE="RESEARCH"; shift ;;
+    -consult) PHASE="CONSULT"; shift ;;
     -design) PHASE="DESIGN"; shift ;;
     -implement) PHASE="IMPLEMENT"; shift ;;
     -test) PHASE="TEST"; shift ;;
@@ -34,7 +35,7 @@ done
 
 
 if [ -z "$PHASE" ]; then
-  echo "Error: Phase (-research, -design, -implement, -test, -review, -publish-obsidian) must be specified."
+  echo "Error: Phase (-consult, -research, -design, -implement, -test, -review, -publish-obsidian) must be specified."
   exit 1
 fi
 
@@ -135,6 +136,15 @@ if [ "$PHASE" = "RESEARCH" ]; then
   fi
   PROMPT_PREFIX="【RESEARCHフェーズ】あなたは現在リサーチャーです。既存のコードやシステムを深く分析し、アイデア出しや課題解決の相談に乗ってください。コード本体は変更せず、調査結果や提案を必ず分かりやすいMarkdownファイル（例: docs/research_idea_xxx.md）にまとめて保存し、コミットして終了してください。"
 
+elif [ "$PHASE" = "CONSULT" ]; then
+  echo "💬 [CONSULT フェーズ] 相談・方針策定タスクを開始します..."
+  if [[ "$AI_BASE" == *"codex"* ]]; then
+    CMD_ARRAY+=(--dangerously-bypass-approvals-and-sandbox)
+  elif [[ "$AI_BASE" == *"claude"* ]] || [[ "$AI_BASE" == *"agy"* ]]; then
+    CMD_ARRAY+=(--dangerously-skip-permissions)
+  fi
+  PROMPT_PREFIX="【CONSULTフェーズ】課題に対する方針策定、ルールの制定、バグ修正のトリアージなど、AI同士の壁打ちや意思決定を行います。議論の結果と方針を docs/consult_xxx.md 等のMarkdownファイルとして保存してください。その後、次工程を担当するエージェントに向けた空コミット (例: git commit --allow-empty -m \"DESIGN: <指示>\") を作成してバトンを渡して終了してください。"
+
 elif [ "$PHASE" = "DESIGN" ]; then
   if [[ "$AI_BASE" == *"codex"* ]]; then
     CMD_ARRAY+=(--dangerously-bypass-approvals-and-sandbox)
@@ -143,7 +153,7 @@ elif [ "$PHASE" = "DESIGN" ]; then
   if [[ "$AI_BASE" == *"claude"* ]] || [[ "$AI_BASE" == *"agy"* ]]; then
     CMD_ARRAY+=(--dangerously-skip-permissions)
   fi
-  PROMPT_PREFIX="【DESIGNフェーズ】要件に基づいて設計を行い、結果を必ず docs/design.md 等のMarkdownファイルとして作成・保存してください。設計の際は必ずリポジトリ内の docs/AI_DESIGN_RULES.md (および固有プロファイルが存在する場合はそれ) のルールを熟読し、厳守してアーキテクチャを取捨選択してください。その際、ファイル名は「タスク内容が人間にも一目で分かる具体的な英数字の名前（例: docs/design_ollama_setup.md）」をあなた自身で考えて命名してください。その後、実装者に向けて空コミット (git commit --allow-empty -m \"IMPLEMENT: <次の指示>\") を作成して終了してください。"
+  PROMPT_PREFIX="【DESIGNフェーズ】要件に基づいて設計を行い、結果を必ず docs/design.md 等のMarkdownファイルとして作成・保存してください。設計の際は必ず絶対パス /home/tanida/ai-next/AI_DESIGN_RULES.md にある全プロジェクト共通の汎用ルールブック（および現在のリポジトリ内に固有プロファイル docs/design_rules_profile_*.md が存在する場合はそれも）を必ず読み込み、厳守してアーキテクチャを取捨選択してください。その際、ファイル名は「タスク内容が人間にも一目で分かる具体的な英数字の名前（例: docs/design_ollama_setup.md）」をあなた自身で考えて命名してください。その後、実装者に向けて空コミット (git commit --allow-empty -m \"IMPLEMENT: <次の指示>\") を作成して終了してください。"
 
 elif [ "$PHASE" = "IMPLEMENT" ]; then
   echo "🔨 [IMPLEMENT フェーズ] 実装タスクを開始します..."
