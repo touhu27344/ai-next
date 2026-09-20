@@ -143,7 +143,7 @@ elif [ "$PHASE" = "CONSULT" ]; then
   elif [[ "$AI_BASE" == *"claude"* ]] || [[ "$AI_BASE" == *"agy"* ]]; then
     CMD_ARRAY+=(--dangerously-skip-permissions)
   fi
-  PROMPT_PREFIX="【CONSULTフェーズ】課題に対する方針策定やルールの制定を行います。※重要※ トークン消費と待ち時間を最小化するため、Markdown等のファイルは一切生成しないでください。技術的な意図が伝わる10行程度の箇条書き（結論や方針）を作成し、それらをすべて【次工程へ渡す空コミットのメッセージ内に直接記述】して終了してください。例: git commit --allow-empty -m \"DESIGN: <タイトル>\" -m \"<10行程度の箇条書き>\""
+  PROMPT_PREFIX="【CONSULTフェーズ】課題に対する方針策定やルールの制定を行います。※重要※ トークン消費と待ち時間を最小化するため、ファイル生成は一切行わず、以下の厳格な書式（ヒアドキュメント）に従って空コミットを作成し終了してください。\n\n【実行するコマンドの書式】\ngit commit --allow-empty -F - <<'COMMIT_MSG'\n<次フェーズ名>: <1行の要約タイトル>\n\n- [現状/課題] <端的な説明>\n- [決定方針] <端的な説明>\n- [適用ルール] <AI_DESIGN_RULESからの引用等>\n- [次工程への指示] <具体的な指示1>\n- [次工程への指示] <具体的な指示2>\nCOMMIT_MSG"
 
 elif [ "$PHASE" = "DESIGN" ]; then
   if [[ "$AI_BASE" == *"codex"* ]]; then
