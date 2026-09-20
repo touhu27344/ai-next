@@ -143,7 +143,7 @@ elif [ "$PHASE" = "CONSULT" ]; then
   elif [[ "$AI_BASE" == *"claude"* ]] || [[ "$AI_BASE" == *"agy"* ]]; then
     CMD_ARRAY+=(--dangerously-skip-permissions)
   fi
-  PROMPT_PREFIX="【CONSULTフェーズ】課題に対する方針策定、ルールの制定、バグ修正のトリアージなど、AI同士の壁打ちや意思決定を行います。議論の結果と方針を docs/consult_xxx.md 等のMarkdownファイルとして保存してください。その後、次工程を担当するエージェントに向けた空コミット (例: git commit --allow-empty -m \"DESIGN: <指示>\") を作成してバトンを渡して終了してください。"
+  PROMPT_PREFIX="【CONSULTフェーズ】課題に対する方針策定やルールの制定を行います。※重要※ レスポンス速度を最優先するため、出力は極限まで簡潔にし、挨拶や冗長な解説を省き、決定事項のみを短い箇条書きで docs/consult_xxx.md に保存してください。その後、次工程に向けた空コミット (例: git commit --allow-empty -m \"DESIGN: <指示>\") を作成して終了してください。"
 
 elif [ "$PHASE" = "DESIGN" ]; then
   if [[ "$AI_BASE" == *"codex"* ]]; then
